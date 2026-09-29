@@ -54,6 +54,61 @@ En los tres robots, conecten el **motor de la rueda izquierda al puerto B** y el
 
 **Explicación en una frase:** «Si te ve, se acerca; si estás cerca, pide caricias».
 
+## Cómo explicar el programa con bloques
+
+Esta sección es para los monitores. Si un niño pregunta cómo funciona, basta con decir: **«El sensor nota algo, se lo cuenta al brick y el brick decide qué hacen las ruedas o el sonido»**. Esto ocurre una y otra vez mientras el programa está encendido.
+
+```mermaid
+flowchart LR
+    A[Sensor: nota luz, sonido, distancia o tacto] --> B[Brick: recibe la señal]
+    B --> C[Programa: elige una acción]
+    C --> D[Ruedas o parlante: responden]
+    D --> A
+```
+
+El sensor **no reconoce** por sí solo una «palmada», una «pared» o una «persona»: entrega una señal y el programa la interpreta.
+
+| Sensor | Qué le avisa al brick |
+| --- | --- |
+| Luz | Si recibe mucha o poca luz. |
+| Sonido | Si oye un ruido fuerte o suave. |
+| Distancia | Envía un sonido que rebota y detecta si hay algo cerca. |
+| Tacto | Si presionaron el botón. |
+
+Los bloques de cada robot, en palabras sencillas:
+
+**Cucaracha**
+
+```text
+REPETIR
+  SI está oscuro → quedarse quieta
+  SI hay luz:
+    SI hay pared delante → girar
+    SI no hay pared → huir en zigzag
+```
+
+**Palmadas**
+
+```text
+REPETIR
+  ESCUCHAR el sensor de sonido
+  SI oye una palmada:
+    SI estaba quieto → empezar a bailar
+    SI estaba bailando → detenerse
+```
+
+**Perrito**
+
+```text
+REPETIR
+  SI no ve a nadie → esperar
+  SI ve a alguien a distancia → acercarse
+  SI alguien está muy cerca → parar y pedir caricias
+    SI lo tocan → menearse
+```
+
+Para explicarlo en vivo, muestren el sensor correspondiente y hagan **una prueba**: alumbrar, aplaudir o acercar la mano. El diagrama y los bloques son un apoyo para ustedes; los niños pueden entender la idea viendo la respuesta del robot.
+
 ## Si algo no responde
 
 1. Revisar que esté abierto el programa del robot correcto.
