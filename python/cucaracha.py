@@ -1,9 +1,9 @@
 """Cucaracha huye-luz NXT con nxt-python (USB).
 Uso:
   source .venv/bin/activate
-  python cucaracha.py
+  python python/cucaracha.py  (desde la raiz del repositorio)
 
-Es una demostracion por USB de la misma idea que cucaracha.nxc. El .nxc
+Es una demostracion por USB de la misma idea que nxc/cucaracha.nxc. El .nxc
 se compila como .rxe y funciona sin computador; esta version Python necesita USB.
 Hardware: luz en PORT_3 mirando arriba (LED apagado), ultrasonico en PORT_4 al frente,
   motores en B (izq) y C (der).

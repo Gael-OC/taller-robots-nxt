@@ -1,9 +1,9 @@
 """Perrito faldero NXT con nxt-python (USB).
 Uso:
   source .venv/bin/activate
-  python perrito.py
+  python python/perrito.py  (desde la raiz del repositorio)
 
-Es una demostracion por USB de la idea de perrito.nxc. El .nxc compilado
+Es una demostracion por USB de la idea de nxc/perrito.nxc. El .nxc compilado
 funciona dentro del brick; esta version Python necesita el computador.
 Hardware: ultrasonico en PORT_4 al frente, tacto en PORT_2 en cabeza/lomo,
   motores en B (izq) y C (der).

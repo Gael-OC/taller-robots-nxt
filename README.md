@@ -118,6 +118,6 @@ Para explicarlo en vivo, muestren el sensor correspondiente y hagan **una prueba
 
 ## Para los compañeros que quieran leer el código
 
-Los archivos [cucaracha.py](cucaracha.py), [palmadas.py](palmadas.py) y [perrito.py](perrito.py) están comentados. La idea de los tres es la misma: **el sensor detecta algo → el robot decide → mueve las ruedas o hace un sonido → vuelve a mirar**. En Python, `if` significa «si», `else` significa «si no» y `while True` significa «repetir».
+Empiecen por la carpeta [python](python/): [cucaracha.py](python/cucaracha.py), [palmadas.py](python/palmadas.py) y [perrito.py](python/perrito.py) están comentados. La idea de los tres es la misma: **el sensor detecta algo → el robot decide → mueve las ruedas o hace un sonido → vuelve a mirar**. En Python, `if` significa «si», `else` significa «si no» y `while True` significa «repetir».
 
-Los archivos [cucaracha.nxc](cucaracha.nxc), [palmadas.nxc](palmadas.nxc) y [perrito.nxc](perrito.nxc) son las versiones del brick. Los Python son para estudiarlos o demostrarlos con USB; **no hacen falta para el taller**. Si alguien quiere ejecutarlos después en un computador, necesitará Python 3, [requirements.txt](requirements.txt) y un NXT conectado por USB.
+La carpeta [nxc](nxc/) tiene [cucaracha.nxc](nxc/cucaracha.nxc), [palmadas.nxc](nxc/palmadas.nxc) y [perrito.nxc](nxc/perrito.nxc), las versiones del brick. Los Python son para estudiarlos o demostrarlos con USB; **no hacen falta para el taller**. Si alguien quiere ejecutarlos después en un computador, necesitará Python 3, [requirements.txt](python/requirements.txt) y un NXT conectado por USB.

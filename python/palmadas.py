@@ -1,9 +1,9 @@
 """Bailarin de palmadas NXT con nxt-python (USB).
 Uso:
   source .venv/bin/activate
-  python palmadas.py
+  python python/palmadas.py  (desde la raiz del repositorio)
 
-Es una demostracion por USB de la idea de palmadas.nxc. El .nxc compilado
+Es una demostracion por USB de la idea de nxc/palmadas.nxc. El .nxc compilado
 funciona dentro del brick; esta version Python necesita el computador.
 Hardware: sonido en PORT_2 (no tapar micro), motores en B y C.
   En este chasis, potencia negativa hace avanzar (OnRev en NXC).
