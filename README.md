@@ -1,4 +1,4 @@
-# Taller de robots LEGO NXT (40 minutos)
+# Taller de robots LEGO NXT (30 minutos)
 
 Cada grupo arma **un robot pequeño** y lo prueba. Los programas **ya están cargados en los bricks**: durante el taller no hay que escribir código ni usar computador.
 
@@ -18,13 +18,13 @@ Cada grupo arma **un robot pequeño** y lo prueba. Los programas **ya están car
 
 En los tres robots, conecten el **motor de la rueda izquierda al puerto B** y el **de la derecha al puerto C**.
 
-## Cómo usar los 40 minutos
+## Cómo usar los 30 minutos
 
 | Tiempo | Qué hace cada grupo |
 | --- | --- |
-| **0–5 min** | Entregar a cada grupo el kit de su robot y mostrar dónde se conectan motores y sensores. |
-| **5–30 min** | Armar la base y conectar los sensores según la tabla. **Apenas un grupo termine, lleva su robot al suelo y lo prueba**; no necesita esperar a los demás. |
-| **30–40 min** | Continuar las pruebas y ayudar a los grupos cuyo robot todavía no responde. |
+| **0–3 min** | Entregar a cada grupo el kit de su robot y mostrar dónde se conectan motores y sensores. |
+| **3–22 min** | Armar la base y conectar los sensores según la tabla. **Apenas un grupo termine, lleva su robot al suelo y lo prueba**; no necesita esperar a los demás. |
+| **22–30 min** | Continuar las pruebas y ayudar a los grupos cuyo robot todavía no responde. |
 
 **Para iniciar:** en el brick, ir a **My Files → Software Files → nombre del robot → Run**. Para detenerlo, pulsar el botón gris **Atrás**. Un monitor puede ayudar a encontrar el programa; los niños se concentran en armar y probar.
 
