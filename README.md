@@ -1,159 +1,70 @@
-# Taller de robots LEGO NXT: cucaracha, palmadas y perrito
+# Taller de robots LEGO NXT (40 minutos)
 
-Esta guía acompaña a [cucaracha.py](cucaracha.py), [palmadas.py](palmadas.py) y [perrito.py](perrito.py). Los archivos Python están comentados para estudiar la lógica y hacer demostraciones con el NXT conectado por USB. Los correspondientes [cucaracha.nxc](cucaracha.nxc), [palmadas.nxc](palmadas.nxc) y [perrito.nxc](perrito.nxc) se compilan a `.rxe` para ejecutarlos directamente en el brick. Comparten la idea de cada robot, pero no todos los detalles son iguales.
+Cada grupo arma **un robot pequeño** y lo prueba. Los programas **ya están cargados en los bricks**: durante el taller no hay que escribir código ni usar computador.
 
-## Archivos y ejecución
+## Antes de que lleguen los niños
 
-| Robot | Para estudiar en Python | Para compilar en el brick |
+- Preparen un kit por grupo: brick NXT con pilas, dos motores, dos ruedas, una ruedita o patín de apoyo, cables y los sensores de su robot.
+- Comprueben que el brick tenga el programa correcto: `cucaracha`, `palmadas` o `perrito`.
+- Dejen una zona despejada **en el suelo** para las pruebas y una linterna para la cucaracha.
+
+## Qué hará cada robot
+
+| Robot | Sensores que debe tener | Qué pasa al probarlo |
 | --- | --- | --- |
-| Cucaracha | `cucaracha.py` | `cucaracha.nxc` |
-| Palmadas | `palmadas.py` | `palmadas.nxc` |
-| Perrito | `perrito.py` | `perrito.nxc` |
+| **Cucaracha** | Luz arriba (**puerto 3**) y distancia mirando al frente (**puerto 4**) | En sombra se queda quieta. Con linterna huye; si encuentra algo delante, gira. |
+| **Palmadas** | Sonido sin tapar el micrófono (**puerto 2**) | Una palmada la hace bailar. Otra palmada la detiene. |
+| **Perrito** | Distancia mirando al frente (**puerto 4**) y botón de tacto accesible arriba (**puerto 2**) | Si detecta a alguien, se acerca. Al estar cerca se detiene y pide caricias. Al pulsar el botón, se menea. |
 
-Los Python requieren un NXT conectado por USB, Python 3 y las dependencias de [requirements.txt](requirements.txt). [nxt_usb_patch.py](nxt_usb_patch.py) acompaña a esos archivos para la conexión USB en macOS. Para instalar y ejecutar una demostración:
+En los tres robots, conecten el **motor de la rueda izquierda al puerto B** y el **de la derecha al puerto C**.
 
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
-python -m pip install -r requirements.txt
-python cucaracha.py  # o palmadas.py / perrito.py
-```
+## Cómo usar los 40 minutos
 
-En Windows se activa el entorno con `.venv\Scripts\activate`. Ejecuten **solo un Python a la vez**. Los `.nxc` se incluyen como referencia del programa del brick; para compilar y subirlos hace falta un compilador NXC y una herramienta de transferencia NXT, que no forman parte de este repositorio. El README de abajo explica los Python y señala sus diferencias con los `.nxc`.
+| Tiempo | Qué hace cada grupo |
+| --- | --- |
+| **0–5 min** | Elegir su robot y reconocer brick, motores, ruedas y sensor(es). |
+| **5–22 min** | Armar la base: dos ruedas con motor, brick y una ruedita o patín de apoyo. Conectar motores B y C. |
+| **22–30 min** | Colocar y conectar los sensores según la tabla. Comprobar que miren en la dirección indicada. |
+| **30–38 min** | Llevarlo al suelo, iniciar el programa y hacer la prueba de abajo. |
+| **38–40 min** | Detenerlo y decir en una frase qué detectó y qué hizo. |
 
-## La idea común
+**Para iniciar:** en el brick, ir a **My Files → Software Files → nombre del robot → Run**. Para detenerlo, pulsar el botón gris **Atrás**. Un monitor puede ayudar a encontrar el programa; los niños se concentran en armar y probar.
 
-Un robot repite cuatro acciones: **sentir → decidir → actuar → volver a sentir**. En Python, `while True` significa «repetir siempre»; `if` significa «si pasa esto»; `else` significa «si no»; y `time.sleep(...)` significa «esperar un momento». Las variables como `estado` guardan algo que el robot debe recordar entre una vuelta y la siguiente.
+## Pruebas rápidas
 
-| Pieza | Para explicarla a niños | En estos programas |
-| --- | --- | --- |
-| Sensor | Los «ojos», «oídos» o «piel» | Luz, sonido, distancia o botón |
-| Umbral | La línea que separa dos decisiones | `UMBRAL_LUZ`, `UMBRAL`, `MIMOS` |
-| Condición | Una pregunta que se responde sí o no | `if luz <= UMBRAL_LUZ` |
-| Motor | Las piernas o ruedas | `left.run(...)`, `right.run(...)` |
-| Estado | La memoria de lo que está haciendo | `bailando`, `estado` |
+### Cucaracha
 
-**Antes de mostrarlo:** verifiquen los puertos de sensores y motores. Levanten las ruedas al probar la dirección: en este chasis, potencia **negativa** de ambos motores significa avanzar (equivale a `OnRev` en NXC). Los sensores de luz y sonido entregan valores crudos inversos en `nxt-python`; los `.py` calculan `1023 - lectura` para que más luz o más ruido produzcan un número mayor. Los umbrales se ajustan mirando las muestras que imprime cada programa. Con `Ctrl+C` se detienen las demostraciones Python.
+1. Tapar el sensor de luz: debería quedarse quieta.
+2. Alumbrarlo con la linterna: debería moverse en zigzag.
+3. Poner una caja delante mientras está alumbrada: debería girar para esquivarla.
 
-La inversión se puede contrastar con el [tutorial de NXC para el sensor de luz](https://bricxcc.sourceforge.net/nbc/nxcdoc/NXC_tutorial.pdf) y la [descripción del valor crudo del sensor de sonido NXT](https://www.mathworks.com/help/simulink/supportpkg/legomindstormsev3_ref/nxtsoundsensor.html). Los números exactos cambian con el ambiente.
+**Explicación en una frase:** «Si ve luz, se escapa; si ve una pared, gira».
 
-## 1. Cucaracha: «si me alumbras, huyo»
+### Palmadas
 
-**Entradas:** luz en puerto 3, ultrasonido en puerto 4. **Salidas:** motores B y C, y sonido. `UMBRAL_LUZ = 560` separa sombra y linterna; `PARED_CM = 30` define cuándo esquivar una pared.
+1. Dejar el lugar lo más silencioso posible.
+2. Dar una palmada fuerte cerca del sensor: debería bailar.
+3. Esperar un momento y dar otra palmada **durante una pausa de la música**: debería parar.
 
-```mermaid
-flowchart TD
-    A[Leer luz y distancia] --> B{¿Luz mayor que 560?}
-    B -- No --> C[Parar: dormir en sombra]
-    B -- Sí --> D[Emitir un pitido]
-    D --> E{¿Pared a menos de 30 cm?}
-    E -- Sí --> F[Girar en el lugar]
-    E -- No --> G[Avanzar y hacer zigzag]
-    C --> A
-    F --> A
-    G --> A
-```
+**Explicación en una frase:** «Cada palmada cambia entre bailar y estar quieto».
 
-**Bloques en lenguaje cotidiano:**
+### Perrito
 
-```text
-REPETIR SIEMPRE
-  MIRAR cuánta luz hay
-  MIRAR qué tan cerca está la pared
-  SI está oscuro
-    DETENER las ruedas
-  SI NO
-    HACER un sonido
-    SI hay pared cerca
-      GIRAR
-    SI NO
-      AVANZAR y CURVARSE a un lado al azar
-```
+1. Poner una mano delante, a unos **40–50 cm**: debería acercarse.
+2. Acercar la mano a unos **25 cm**: debería detenerse y ladrar.
+3. Pulsar el botón de tacto: debería menearse.
 
-**Para el equipo:** `d = 255` significa que el sensor ultrasónico no devolvió un eco útil; este Python lo trata como camino libre. El zigzag no es un sensor nuevo: sale de mover una rueda más rápido que la otra. Pregunta para niños: «¿Qué hará si ponemos la linterna y una caja delante al mismo tiempo?». Respuesta: girará primero.
+**Explicación en una frase:** «Si te ve, se acerca; si estás cerca, pide caricias».
 
-## 2. Palmadas: «una para bailar, otra para parar»
+## Si algo no responde
 
-**Entrada:** sensor de sonido en puerto 2. **Salidas:** motores B y C, y altavoz. `bailando` es su memoria de encendido/apagado. Para reconocer una palmada pide **dos lecturas fuertes seguidas**. `armado` impide que el mismo ruido cuente dos veces: el sonido debe bajar de `REARME` antes de aceptar otra palmada.
+1. Revisar que esté abierto el programa del robot correcto.
+2. Revisar los cables: motores **B/C** y sensores en los puertos de la tabla.
+3. Comprobar que el sensor mire hacia donde se hace la prueba y que las pilas tengan carga.
+4. Probar de nuevo con el robot en el suelo y espacio libre. Para palmadas, esperar una pausa de la música antes de la segunda.
 
-```mermaid
-flowchart TD
-    A{¿Está bailando?} -- No --> B[Escuchar micrófono]
-    B --> C{¿Palmada confirmada?}
-    C -- No --> A
-    C -- Sí --> D[Guardar bailando = sí]
-    D --> A
-    A -- Sí --> E[Tocar nota y hacer un paso]
-    E --> F[Parar ruedas y escuchar en la pausa]
-    F --> G{¿Nueva palmada confirmada?}
-    G -- No --> A
-    G -- Sí --> H[Guardar bailando = no y parar]
-    H --> A
-```
+## Para los compañeros que quieran leer el código
 
-**Bloques en lenguaje cotidiano:**
+Los archivos [cucaracha.py](cucaracha.py), [palmadas.py](palmadas.py) y [perrito.py](perrito.py) están comentados. La idea de los tres es la misma: **el sensor detecta algo → el robot decide → mueve las ruedas o hace un sonido → vuelve a mirar**. En Python, `if` significa «si», `else` significa «si no» y `while True` significa «repetir».
 
-```text
-EMPEZAR en modo ESPERA
-REPETIR SIEMPRE
-  SI estoy esperando Y oigo una palmada confirmada
-    CAMBIAR a modo BAILE
-  SI estoy bailando
-    TOCAR una nota y HACER un paso
-    PARAR un instante para escuchar
-    SI oigo otra palmada confirmada
-      CAMBIAR a modo ESPERA y DETENER las ruedas
-```
-
-**Para el equipo:** los cuatro movimientos se repiten: avanzar, girar, retroceder, girar al otro lado. En Python la melodía es corta y la escucha ocurre en las pausas; una palmada durante un paso puede no detectarse. El `.nxc` toca un estribillo más largo y tiene un período inicial en que ignora el micrófono para evitar el eco de la primera palmada. Pregunta para niños: «¿Por qué debe haber un pequeño silencio antes de la segunda palmada?». Respuesta: para distinguirla de la primera.
-
-## 3. Perrito: «me acerco y pido caricias»
-
-**Entradas:** ultrasonido en puerto 4, tacto en puerto 2. **Salidas:** motores B y C, y altavoz. El robot recuerda tres estados: **0 espero**, **1 me acerco**, **2 pido caricias**.
-
-```mermaid
-flowchart TD
-    A[Leer distancia y botón] --> B{¿Sin eco o a más de 60 cm?}
-    B -- Sí --> C[Estado 0: esperar quieto]
-    B -- No --> Z{¿Distancia igual a 0?}
-    Z -- Sí --> Y{¿Ya había visto a alguien?}
-    Y -- Sí --> E[Estado 2: parar y pedir caricias]
-    Y -- No --> C
-    Z -- No --> D{¿A 30 cm o menos?}
-    D -- Sí --> E[Estado 2: parar y pedir caricias]
-    D -- No --> F{¿Ya pedía caricias y sigue a 35 cm o menos?}
-    F -- Sí --> E
-    F -- No --> G[Estado 1: acercarse]
-    E --> H{¿Botón presionado?}
-    H -- Sí --> I[Moverse de lado a lado]
-    H -- No --> J[Ladrar tras una pausa]
-    C --> A
-    G --> A
-    I --> A
-    J --> A
-```
-
-**Bloques en lenguaje cotidiano:**
-
-```text
-REPETIR SIEMPRE
-  MIRAR la distancia y el botón de caricias
-  SI no veo a nadie o está muy lejos
-    ESPERAR quieto
-  SI NO, SI está a una distancia intermedia
-    ACERCARME
-  SI NO
-    PARAR y PEDIR caricias
-    SI me tocan, HACER un meneo
-    SI no me tocan, LADRAR después de una pausa
-```
-
-**Para el equipo:** hay una franja especial entre 31 y 35 cm: si el perrito ya pedía caricias, sigue pidiéndolas hasta que la persona se aleje más de 35 cm. Eso evita cambiar de estado una y otra vez por pequeñas variaciones del sensor. `255` significa sin eco y hace que espere. La lectura `0` solo se interpreta como «muy cerca» si ya había visto a alguien. En este Python, dejar el botón apretado puede repetir el meneo; el `.nxc` cuenta solo una pulsación nueva y confirma que alguien se alejó tras tres lecturas.
-
-## Cómo usarlo en el taller
-
-1. Hagan que los niños representen los bloques con el cuerpo: uno es sensor, otro decide y dos son las ruedas.
-2. Predigan qué hará el robot **antes** de encenderlo: sombra/luz, silencio/palmada, lejos/cerca/toque.
-3. Prueben una condición por vez y comparen con la predicción. Si no responde, miren primero la lectura del sensor y ajusten el umbral.
-
-Para estudiar el código, lean en cada `.py` en este orden: **constantes → sensores y motores → funciones de movimiento → `while True` → `if`/`else`**. Las funciones (`dormir`, `es_palmada`, `meneito`) son acciones con nombre: ayudan a que el ciclo principal se lea como una historia.
+Los archivos [cucaracha.nxc](cucaracha.nxc), [palmadas.nxc](palmadas.nxc) y [perrito.nxc](perrito.nxc) son las versiones del brick. Los Python son para estudiarlos o demostrarlos con USB; **no hacen falta para el taller**. Si alguien quiere ejecutarlos después en un computador, necesitará Python 3, [requirements.txt](requirements.txt) y un NXT conectado por USB.
