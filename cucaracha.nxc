@@ -1,0 +1,88 @@
+// Cucaracha huye-luz: vive escondida en la sombra, corre si la alumbran.
+// Montaje: traccion B/C (OnRev = avanzar), luz en IN_3 mirando arriba,
+// ultrasonico en IN_4 al frente para no chocar huyendo.
+// Pantalla: cucaracha feliz en sombra, asustada con luz + valores.
+// Compilar: ./tools/nbc cucaracha.nxc -O=cucaracha.rxe -sm-
+
+// susto 0 feliz sombra, 1 asustada luz
+void caraBicho(int susto)
+{
+  ClearScreen();
+  TextOut(0, LCD_LINE1, "CUCARACHA");
+  CircleOut(50, 32, 16); // cuerpo
+  if (susto == 0) {
+    CircleOut(44, 38, 2); // ojos felices
+    CircleOut(56, 38, 2);
+    LineOut(42, 26, 58, 26); // sonrisa
+    LineOut(34, 44, 28, 52); // antenas relax
+    LineOut(66, 44, 72, 52);
+  } else {
+    CircleOut(43, 38, 4); // ojos muy abiertos
+    CircleOut(57, 38, 4);
+    PointOut(43, 38);
+    PointOut(57, 38);
+    CircleOut(50, 25, 4); // boca "o"
+    LineOut(34, 44, 24, 56); // antenas tiesas
+    LineOut(66, 44, 76, 56);
+  }
+}
+
+task main()
+{
+  SetSensorLight(IN_3, false); // LED apagado: mide luz externa
+  SetSensorLowspeed(IN_4);
+  Wait(500);
+
+  int UMBRAL = 55; // por encima = luz de linterna, por debajo = sombra
+  int luz;
+  int d;
+
+  caraBicho(0);
+  TextOut(0, LCD_LINE8, "Zzz sombra");
+
+  while (true)
+  {
+    luz = Sensor(IN_3);
+    d = SensorUS(IN_4);
+    NumOut(0, LCD_LINE7, luz);
+    NumOut(48, LCD_LINE7, d);
+
+    if (luz <= UMBRAL)
+    {
+      // Sombra: quieta y feliz
+      caraBicho(0);
+      TextOut(0, LCD_LINE8, "Zzz sombra");
+      Off(OUT_BC);
+      Wait(150);
+    }
+    else
+    {
+      // Luz!: corre y esquiva lo que tenga delante
+      caraBicho(1);
+      TextOut(0, LCD_LINE8, "HUYO!     ");
+      PlayTone(1200, 80);
+      if (d < 30 && d != 0 && d != 255)
+      {
+        // Pared delante huyendo: gira
+        OnRev(OUT_B, 60);
+        OnFwd(OUT_C, 60);
+        Wait(450);
+      }
+      else
+      {
+        OnRev(OUT_BC, 70);
+        Wait(350);
+        // zigzag de cucaracha
+        if (Random(1) == 0) {
+          OnRev(OUT_B, 70);
+          OnRev(OUT_C, 30);
+        } else {
+          OnRev(OUT_B, 30);
+          OnRev(OUT_C, 70);
+        }
+        Wait(250);
+      }
+    }
+    Wait(50);
+  }
+}

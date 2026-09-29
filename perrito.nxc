@@ -1,0 +1,179 @@
+// Perrito faldero: sigue a quien se acerca y pide caricias. Nunca embiste.
+// Montaje: traccion B/C (OnRev = avanzar), ultrasonico en IN_4 al frente,
+// tacto en IN_2 en la cabeza/lomo para hacerle carino.
+// Lejos (>60): espera. A 31-60 cm: se acerca. A <=30 cm: se detiene
+// y pide caricias insistente cada 0.8 s. Al tocar el sensor, se menea y vuelve a pedir.
+// Pantalla: perrito con orejas y lengua + estado.
+// Compilar: ./tools/nbc perrito.nxc -O=perrito.rxe -sm-
+
+#define DETECTA 60
+#define MIMOS 30
+#define SALE_MIMOS 35
+#define VELOCIDAD 60
+
+// animo 0 espera, 1 feliz, 2 caricias
+void caraPerro(int animo)
+{
+  ClearScreen();
+  TextOut(0, LCD_LINE1, "PERRITO");
+  CircleOut(50, 30, 18); // cabeza
+  LineOut(34, 42, 28, 56); // oreja izq
+  LineOut(66, 42, 72, 56); // oreja der
+  CircleOut(43, 36, 3); // ojos
+  CircleOut(57, 36, 3);
+  PointOut(43, 36);
+  PointOut(57, 36);
+  CircleOut(50, 30, 2); // hocico
+  if (animo == 0) {
+    LineOut(44, 22, 56, 22); // espera: boca recta
+    TextOut(0, LCD_LINE5, "VEN...");
+  } else if (animo == 1) {
+    LineOut(40, 22, 60, 26); // feliz: sonrisa
+    LineOut(48, 26, 48, 20); // lenguita
+    LineOut(52, 26, 52, 20);
+    TextOut(0, LCD_LINE5, "GUAU!");
+  } else {
+    CircleOut(38, 40, 2); // caricias: ojos amor
+    CircleOut(62, 40, 2);
+    LineOut(40, 22, 60, 27); // sonrisa grande
+    LineOut(48, 27, 48, 19); // lengua fuera
+    LineOut(52, 27, 52, 19);
+    TextOut(0, LCD_LINE5, "<3 MIMOS");
+  }
+}
+
+// Se menea izquierda-derecha-izquierda y acaba mirando al frente.
+void mimo()
+{
+  caraPerro(2);
+  TextOut(0, LCD_LINE8, "MIMOS! ^_^ ");
+  Off(OUT_BC);
+  Wait(100);
+
+  PlayTone(523, 170);
+  OnRev(OUT_B, 40);
+  OnFwd(OUT_C, 40);
+  Wait(180);
+
+  PlayTone(659, 340);
+  OnFwd(OUT_B, 40);
+  OnRev(OUT_C, 40);
+  Wait(360);
+
+  PlayTone(784, 170);
+  OnRev(OUT_B, 40);
+  OnFwd(OUT_C, 40);
+  Wait(180);
+  Off(OUT_BC);
+}
+
+task main()
+{
+  SetSensorLowspeed(IN_4);
+  SetSensorTouch(IN_2);
+  Wait(500);
+
+  int d;
+  int btn;
+  int prevBtn = 0;
+  int estado = 0; // 0 espero, 1 sigo, 2 pido caricias
+  int nuevo;
+  int lejos = 0;
+  int pideTimer = 0;
+
+  caraPerro(0);
+  TextOut(0, LCD_LINE8, "ESPERO... ");
+
+  while (true)
+  {
+    d = SensorUS(IN_4);
+    btn = Sensor(IN_2);
+    NumOut(0, LCD_LINE7, d);
+    NumOut(48, LCD_LINE7, btn); // 0/1 boton para depurar
+
+    // 255 = sin eco. Tres lecturas seguidas confirman que se alejo.
+    // 0 puede significar que esta pegado: solo vale tras haberlo visto.
+    if (d == 255 || d > DETECTA)
+    {
+      Off(OUT_BC);
+      if (lejos < 3) lejos++;
+      nuevo = (lejos >= 3) ? 0 : estado;
+    }
+    else if (d == 0)
+    {
+      Off(OUT_BC);
+      lejos = 0;
+      nuevo = (estado == 1 || estado == 2) ? 2 : 0;
+    }
+    else
+    {
+      lejos = 0;
+      if (d <= MIMOS || (estado == 2 && d <= SALE_MIMOS))
+        nuevo = 2;
+      else
+        nuevo = 1;
+    }
+
+    // Una pulsacion solo cuenta cuando ya esta pidiendo caricias.
+    if (btn == 1 && prevBtn == 0 && nuevo == 2 && lejos == 0)
+    {
+      mimo();
+      estado = 2;
+      TextOut(0, LCD_LINE8, "ACARICIAME");
+      pideTimer = 0;
+      prevBtn = 1;
+      continue;
+    }
+    prevBtn = btn;
+
+    // Al cambiar, actualiza cara y avisa una vez.
+    if (nuevo != estado)
+    {
+      estado = nuevo;
+      pideTimer = 0;
+      if (estado == 0)
+      {
+        caraPerro(0);
+        TextOut(0, LCD_LINE8, "ESPERO... ");
+      }
+      else if (estado == 1)
+      {
+        caraPerro(1);
+        TextOut(0, LCD_LINE8, "VOY :)    ");
+        PlayTone(880, 100);
+      }
+      else
+      {
+        // Al lado: quieto + ladridito fuerte que dice "hazme caso".
+        caraPerro(2);
+        TextOut(0, LCD_LINE8, "ACARICIAME");
+        PlayToneEx(880, 150, 4, 0); Wait(180);
+        PlayToneEx(990, 200, 4, 0); Wait(220);
+      }
+    }
+
+    if (estado == 0) {
+      Off(OUT_BC);
+      pideTimer = 0;
+    }
+    else if (estado == 1) {
+      if (lejos == 0) OnRev(OUT_BC, VELOCIDAD);
+      else Off(OUT_BC);
+      pideTimer = 0;
+    }
+    else {
+      Off(OUT_BC);
+      // Insistente: repite seguido mientras siga cerca, tambien despues del mimo.
+      // pideTimer cuenta loops de 50 ms: 16 = ~0.8 s (antes 40 = 2 s).
+      if (lejos == 0) pideTimer++;
+      if (pideTimer >= 16) {
+        pideTimer = 0;
+        PlayToneEx(880, 150, 4, 0); Wait(180);
+        PlayToneEx(660, 150, 4, 0); Wait(180);
+        PlayToneEx(990, 200, 4, 0); Wait(220);
+      }
+    }
+
+    Wait(50);
+  }
+}
