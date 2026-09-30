@@ -1,0 +1,199 @@
+#define THRESHOLD 35     // Distancia de detección en cm (mano cercana)
+#define SPEED_DRIVE 50   // Potencia motores de tracción
+#define RADAR_SPEED 40   // Potencia motor del radar
+#define ANGLE 90         // Ángulo de barrido (90 grados)
+
+// Estados de pantalla
+#define FACE_NONE      0
+#define FACE_SEARCHING 1
+#define FACE_FOUND     2
+
+int currentFace = FACE_NONE;
+
+// Funciones de movimiento 
+// (OnRev avanza y OnFwd retrocede por el armado del chasis)
+void Forward()
+{
+    OnRev(OUT_BC, SPEED_DRIVE);
+}
+
+void TurnLeft()
+{
+    OnRev(OUT_C, SPEED_DRIVE);
+    OnFwd(OUT_B, SPEED_DRIVE);
+}
+
+void TurnRight()
+{
+    OnRev(OUT_B, SPEED_DRIVE);
+    OnFwd(OUT_C, SPEED_DRIVE);
+}
+
+void StopRobot()
+{
+    Off(OUT_BC);
+}
+
+// Funciones de visualización en pantalla LCD
+void DrawFaceSearching()
+{
+    // Cabeza y antena
+    CircleOut(50, 32, 24);
+    LineOut(50, 56, 50, 61);
+    CircleOut(50, 62, 1);
+
+    // Ojos mirando de lado (buscando)
+    CircleOut(40, 36, 5);
+    CircleOut(60, 36, 5);
+    CircleOut(38, 36, 2);
+    CircleOut(58, 36, 2);
+
+    // Cejas
+    LineOut(34, 43, 44, 45);
+    LineOut(56, 44, 66, 47);
+
+    // Boca en "o"
+    CircleOut(50, 22, 3);
+
+    // Texto de estado
+    TextOut(15, LCD_LINE8, "BUSCANDO...");
+}
+
+void DrawFaceFound()
+{
+    // Cabeza y antena con ondas de detección
+    CircleOut(50, 32, 24);
+    LineOut(50, 56, 50, 61);
+    CircleOut(50, 62, 1);
+    LineOut(44, 62, 46, 60);
+    LineOut(56, 62, 54, 60);
+
+    // Ojos felices (^ ^)
+    LineOut(35, 34, 40, 40);
+    LineOut(40, 40, 45, 34);
+    LineOut(55, 34, 60, 40);
+    LineOut(60, 40, 65, 34);
+
+    // Mejillas
+    LineOut(30, 26, 34, 26);
+    LineOut(66, 26, 70, 26);
+
+    // Sonrisa
+    LineOut(38, 24, 62, 24);
+    LineOut(38, 24, 44, 17);
+    LineOut(62, 24, 56, 17);
+    LineOut(44, 17, 56, 17);
+
+    // Texto de estado
+    TextOut(14, LCD_LINE8, "TE ENCONTRE!");
+}
+
+void SetFace(int face)
+{
+    if (currentFace == face) return;
+    currentFace = face;
+    ClearScreen();
+    if (face == FACE_SEARCHING)
+    {
+        DrawFaceSearching();
+    }
+    else if (face == FACE_FOUND)
+    {
+        DrawFaceFound();
+    }
+}
+
+task main()
+{
+    // Inicializar el sensor ultrasónico en el puerto 4
+    SetSensorLowspeed(IN_4);
+    SetFace(FACE_SEARCHING);
+
+    while (true)
+    {
+
+        // 1. EVALUAR AL FRENTE 
+        int distCenter = SensorUS(IN_4);
+        if (distCenter < THRESHOLD && distCenter > 0)
+        {
+            SetFace(FACE_FOUND);
+            PlayTone(880, 100); // Tono agudo: Mano al frente
+            Forward();
+            Wait(250);
+            continue; // Mientras la mano siga al frente, sigue avanzando directo
+        }
+
+        // Si perdió la mano al frente, frena para buscar a los lados
+        StopRobot();
+        SetFace(FACE_SEARCHING);
+
+
+        // 2. BARRER A LA IZQUIERDA (-90°)
+        RotateMotor(OUT_A, RADAR_SPEED, -ANGLE);
+        Wait(100);
+        int distLeft = SensorUS(IN_4);
+
+        if (distLeft < THRESHOLD && distLeft > 0)
+        {
+            PlayTone(440, 200); // Tono grave: Mano a la izquierda
+            
+            // Girar chasis del robot hacia la izquierda
+            TurnLeft();
+            Wait(400);
+            StopRobot();
+            
+            // Regresar radar al centro para quedar alineados
+            RotateMotor(OUT_A, RADAR_SPEED, ANGLE);
+
+            // NUEVO CHECK: Al girar y re-centrar el radar, verificar de inmediato
+            // si la mano quedó enfrente para avanzar directo sin perder tiempo
+            int checkFront = SensorUS(IN_4);
+            if (checkFront < THRESHOLD && checkFront > 0)
+            {
+                SetFace(FACE_FOUND);
+                PlayTone(880, 100);
+                Forward();
+                Wait(250);
+            }
+            continue;
+        }
+
+
+        // 3. BARRER A LA DERECHA (+180° desde la izquierda)
+        RotateMotor(OUT_A, RADAR_SPEED, ANGLE * 2);
+        Wait(100);
+        int distRight = SensorUS(IN_4);
+
+        if (distRight < THRESHOLD && distRight > 0)
+        {
+            PlayTone(660, 200); // Tono medio: Mano a la derecha
+            
+            // Girar chasis del robot hacia la derecha
+            TurnRight();
+            Wait(400);
+            StopRobot();
+            
+            // Regresar radar al centro desde la derecha (-90°)
+            RotateMotor(OUT_A, RADAR_SPEED, -ANGLE);
+
+            // NUEVO CHECK: Al girar y re-centrar el radar, verificar de inmediato
+            // si la mano quedó enfrente para avanzar directo sin perder tiempo
+            int checkFront = SensorUS(IN_4);
+            if (checkFront < THRESHOLD && checkFront > 0)
+            {
+                SetFace(FACE_FOUND);
+                PlayTone(880, 100);
+                Forward();
+                Wait(250);
+            }
+            continue;
+        }
+
+        // 4. SI NO DETECTÓ NADA EN NINGUNA DIRECCIÓN
+        // Regresar el radar de la derecha (-90°) al centro
+        RotateMotor(OUT_A, RADAR_SPEED, -ANGLE);
+        StopRobot();
+        SetFace(FACE_SEARCHING);
+        Wait(200);
+    }
+}
